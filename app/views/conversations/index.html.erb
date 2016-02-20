@@ -1,0 +1,17 @@
+<h2>Users available for chat</h2>
+<% unless @users.empty? %>
+  <ul class="user_list">
+    <% @users.each do |u| %>
+      <li> <%= link_to u.email, "#", class: "start_chat", data: { sender_id: current_user.id, recipient_id: u.id } %> </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>
+    No available users right now. Come back later.
+  </p>
+<% end %>
+
+
+<h2>Chat</h2>
+<div id="chat" data-user-id="<%= current_user.id %>">
+</div>
