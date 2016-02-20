@@ -3,10 +3,12 @@
 <head>
   <title>MonolithChat</title>
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <script src='/faye/client.js'></script>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
 </head>
 <body>
+  <h1>Chat application</h1>
 
 <%= yield %>
 
