@@ -1,5 +1,7 @@
+# вебсокет клиент, который предоставляет одноименный гем
 window.client = new Faye.Client('/faye')
 
+# расширение для Faye чтобы вшивать в каждый вебсокет запрос Base64 представление CSRF токена
 client.addExtension
   outgoing: (message, callback) ->
     message.ext = message.ext || {}
@@ -12,16 +14,22 @@ class Chat.UI
   constructor: (@user_list) ->
     @bindStartConversation(@user_list)
 
+  # вешаем событие на клик по email'у пользователя
   bindStartConversation: ->
     self = @
     @user_list.find(".start_chat").click ->
+      # если существует подписка отменяем ее
       window.subscription.cancel() if window.subscription
       self.fetchConversation($(@)).done(
         (conversation) ->
+          # рисуем окно чата
           conversation.renderChatWindow()
+          # запрашиваем с сервера сообщения и отрисовываем их
           conversation.renderMessages()
       )
 
+  # запрос на сервер чтобы получить ID'шник чата между пользователями
+  # когда приходит ответ от сервера создаем объект Chat.Conversation
   fetchConversation: (user) ->
     sender_id    = user.data 'sender-id'
     recipient_id = user.data 'recipient-id'
@@ -35,6 +43,9 @@ class Chat.UI
         new Chat.Conversation(response.id, sender_id, recipient_id)
     )
 
+# Объект "Чат между пользователями"
+# при инициализации срразу же создается подписка на канал вида "/conversation/#{@id}"
+# где @id - это id'шник модели Conversation с сервера
 class Chat.Conversation
   constructor: (@id, @sender_id, @recipient_id) ->
     self = @
@@ -55,6 +66,8 @@ class Chat.Conversation
           <input type='submit' name='commit' value='Send'>
         </form>")
 
+  # Сообщение состоит из body и from
+  # На самом деле туда можно было бы передавать больше информации, например Дата создания сообщения и никнейм пользователя
   renderMessages: =>
     @fetchMessages().done(
       (response) =>

@@ -26,8 +26,7 @@ module MonolithChat
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
     config.middleware.delete Rack::Lock
-    # config.middleware.insert_after ActionDispatch::Session::CookieStore,
-    #   Faye::RackAdapter, extensions: [CsrfProtection.new], mount: '/faye', timeout: 25
+    # включение Faye в middleware по урлу /faye + экстеншн для проверки CSRF токенов
     config.middleware.insert_after ActionDispatch::Session::CookieStore,
       Faye::RackAdapter, mount: '/faye', timeout: 25 do |faye|
         faye.add_extension(CsrfProtection.new)
