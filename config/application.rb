@@ -1,6 +1,9 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
+require 'faye'
+
+Faye::WebSocket.load_adapter('thin')
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -22,5 +25,11 @@ module MonolithChat
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+    config.middleware.delete Rack::Lock
+    # включение Faye в middleware по урлу /faye + экстеншн для проверки CSRF токенов
+    config.middleware.insert_after ActionDispatch::Session::CookieStore,
+      Faye::RackAdapter, mount: '/faye', timeout: 25 do |faye|
+        faye.add_extension(CsrfProtection.new)
+      end
   end
 end
