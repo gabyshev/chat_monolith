@@ -22,4 +22,10 @@ group :development do
   gem 'web-console', '~> 2.0'
   gem 'quiet_assets'
   gem 'spring'
+  gem 'pry-rails'
+end
+
+group :test do
+  gem 'shoulda-matchers'
+  gem 'factory_girl_rails'
 end
