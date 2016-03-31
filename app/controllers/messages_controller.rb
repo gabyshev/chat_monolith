@@ -2,7 +2,7 @@ class MessagesController < ApplicationController
   respond_to :json
 
   def index
-    render json: {}, status: :not_found unless conversation
+    render json: {}, status: :not_found and return unless conversation
     @messages = conversation.messages
 
     # для демонастрации задействованы только body и email модели Message
@@ -18,6 +18,8 @@ class MessagesController < ApplicationController
 
   def conversation
     @conversation = Conversation.find(params[:conversation_id])
+  rescue ActiveRecord::RecordNotFound
+    nil
   end
 
   def message_params
