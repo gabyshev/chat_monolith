@@ -1,22 +1,23 @@
-## Приложение чат
+## Sample monolith chat application using websockets
 
-В этом репозитории реализована первая часть тестового задания.
+This repo contains first part of assessment. Second part [here](https://github.com/gabyshev/microservies_chat).
 
-### Требования
+### Assessment
 
-Функционал:
-- Пользователь может зарегистрироваться в системе.
-- Пользователь может авторизоваться в системе.
-- Авторизовавшийся пользователь может пользоваться чатом с другими пользователями системы. В  чате можно отправлять и принимать сообщения от собеседников.
+Functions:
+- User can register in the app.
+- User can login in the app.
+- Logged user can chat with other users.
+- Chat allow user to send and receive messages
 
-Способ реализации:
-- одно Ruby on Rails приложение
+Realization:
+- one RoR application
 
-###  Реализация
+###  Realization
 
-Требований по версии ПО не было, поэтому я использовал последние стабильные версии Ruby и RoR.
+There is no requirement about software version, so I have used the latest possible.
 
-Использованное ПО:
+Software requirements:
 - Ruby 2.3.0
 - Rails 4.2.5
 - Devise
@@ -24,59 +25,70 @@
 - Docker
 - Thin Webserver
 
-Для регистрации и авторизации пользователей использована библиотека Devise.
-Чат на вебсокетах с использованием [Faye](faye.jcoglan.com), веб сервер Thin для поддержки асинхронных вызовов. Для простоты, приложение можно запускать в Docker контейнере.
 
-Из-за демонстрационного смысла приложения сделан ряд упрощений:
-- приложенине запускается в development окружении в Docker контейнере
-- используется стандарная база данных Sqlite3
-- Ни строчки CSS :)
+- `Devise` for user management.
+- Websockets chat with [Faye](faye.jcoglan.com)
+- Thin Webserver to be able to support asynchronous requests.
+- Application is putted inside Docker container.
 
-Также в [этом](https://github.com/gabyshev/chat_monolith/commit/13b150f1fbd73ba15f8494e80f141f1c7ae4a72b) коммите, я вставил разъясняющие комментарии на все важные, на мой взгляд, моменты в приложении.
+Due to testing purposes there are some simplifications:
+- application runs in development environment inside docker container
+- used standard Sqlite3 database
+- no CSS
 
-### Тесты
+### Tests
 
-Использовал `rspec` с `factory_girl` и `shoulda-matchers`
+I have used
+- `rspec`
+- `factory_girl`
+- `shoulda-matchers`
 
-#### Запуск
+To run:
 
 ```
-rake spec
+  $ rake spec
 ```
 
-### Логика
+### Logic
 
-Для безопасности, все запросы с фронтенда вшивают в мета инфомацию вебсокет запроса base64 значение сгенерированного CSRF токена.
-На сервере полученный токен декодируется и сравнивается со значением, которое хранится на сервере.
+For security reasons all frontend websocket requests have CSRF token. That token decoded on backend side and compared with the value on the server.
 
 #### Backend
 
-У пользователя может быть несколько чатов с другими пользователями.
-Чат (conversation) может включать в себя только 2 участников. Все сообщения (message) хранятся в базе.
-При создании нового сообщения происходит `publish` сообщения по вебсокетам на канал вида: `/conversation/CONVERSATION_ID`.
+User can have several chats with other users.
+Chat (or conversion) can consist only 2 members (sender and recipient).
+All messages stored in the database.
+When the new message is created it published in websocket channel `/conversion/CONVERSATION_ID`
 
 #### Frontend
 
-При открытии страницы на список пользователей вешается событие на `click`.
-При клике создается объект `Chat.Conversation`, происходит подписка на канал вида `/conversation/CONVERSATION_ID`, отрисовывается чат и подгружаются сообщения по этому чату.
-Новое сообщение отправляется по ajax на сервер, там происходит `publish` нового сообщения и клиенты подписанные на этот канал его получат.
-При открытии чата с другим пользователем текущая подписка удаляется и создается новая.
+Page opened with other user's list.
+When user click on username several actions will trigger:
+- creation of object `Chat.Conversation`
+- render of the chat window
+- subscribing to channel `/conversation/CONVERSATION_ID`
+- loading stored messages from the database and rendering them in view
 
-### Запуск
+Every new message will be sent to server via AJAX where `publish` event will be triggered and clients subscribed to that channel will receive a new message.
+
+When other chat is opened the previous one in canceled and new subscription is created.
+
+### Running application
 
 ```
 cd ../path/to/app
 docker build --rm -t chat .
 docker run -p 80:3000 -d chat
 ```
-Если запуск происходит с OS X, приложение можно будет открыть по IP-адресу который хранится в ENV `$DOCKER_HOST` с портом 80.
-Для Linux, приложение можно будет посмотреть по `localhost`
 
-### Возможные улучшения
+If you run application from OS X check your env var `$DOCKER_HOST` and open it.
+From Linux just open `localhost`
 
-1. Хранение сообщений в реляционной базе довольно узкое место. Вот что было бы нужно сделать в настоящем production окружении:
- - кешировать сообщения в быстрой БД типа Redis
- - при больших нагрузках использовать отложенную запись данных
- - масштабировать сам Redis, используя, например, шардинг
- - не отдавать сразу все сообщения чата, а отдавать последние N и догружать порционно остальные по мере надобности отдельными запросами
-2. Дизайн :)
+### Suggested improvements
+
+1. Storing messages in relational database is a bottleneck. Here what should you do in production environment:
+ - cache messages in fast in-memory DB like Redis
+ - if your server will experience high load use delayed write to the database
+ - if necessary, use Redis database sharding technology
+ - do not query all messages, use pagination and query data partially
+2. User Interface :)
