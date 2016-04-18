@@ -4,9 +4,6 @@ class MessagesController < ApplicationController
   def index
     render json: {}, status: :not_found and return unless conversation
     @messages = conversation.messages
-
-    # для демонастрации задействованы только body и email модели Message
-    # можно дополнить еще например датой создания сообщения
     render json: @messages.map{ |m| { body: m.body, from: m.user.email }}
   end
 
