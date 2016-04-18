@@ -1,6 +1,6 @@
 ## Sample monolith chat application using websockets
 
-This repo contains first part of assessment. Second part [here](https://github.com/gabyshev/microservies_chat).
+This repo contains first part of assessment. Second part [here](https://github.com/gabyshev/microservices_chat).
 
 ### Assessment
 
