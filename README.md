@@ -51,27 +51,27 @@ To run:
 
 ### Logic
 
-For security reasons all frontend websocket requests have CSRF token. That token decoded on backend side and compared with the value on the server.
+For security reasons all frontend websocket requests have CSRF token. That token is decoded on backend side and compared with the value on the server.
 
 #### Backend
 
 User can have several chats with other users.
 Chat (or conversion) can consist only 2 members (sender and recipient).
 All messages stored in the database.
-When the new message is created it published in websocket channel `/conversion/CONVERSATION_ID`
+When the new message is created it is published in websocket channel `/conversion/CONVERSATION_ID`
 
 #### Frontend
 
 Page opened with other user's list.
-When user click on username several actions will trigger:
+When user clicks on username several actions will be triggered:
 - creation of object `Chat.Conversation`
 - render of the chat window
 - subscribing to channel `/conversation/CONVERSATION_ID`
-- loading stored messages from the database and rendering them in view
+- loading stored messages from the database and rendering them in the view
 
 Every new message will be sent to server via AJAX where `publish` event will be triggered and clients subscribed to that channel will receive a new message.
 
-When other chat is opened the previous one in canceled and new subscription is created.
+When other chat is opened the previous one is canceled and new subscription is created.
 
 ### Running application
 
@@ -86,7 +86,7 @@ From Linux just open `localhost`
 
 ### Suggested improvements
 
-1. Storing messages in relational database is a bottleneck. Here what should you do in production environment:
+1. Storing messages in relational database is a bottleneck. Here is what should you do in production environment:
  - cache messages in fast in-memory DB like Redis
  - if your server will experience high load use delayed write to the database
  - if necessary, use Redis database sharding technology
